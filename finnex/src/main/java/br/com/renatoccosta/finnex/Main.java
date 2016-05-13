@@ -1,18 +1,36 @@
+/*
+ * Copyright 2016 Renato Costa <renatoccosta@petrobras.com>.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package br.com.renatoccosta.finnex;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.Reader;
+import java.io.Writer;
 
 /**
  *
  * @author Renato Costa <renatoccosta@petrobras.com>
  */
 public class Main {
+
+    private static final Parser[] PARSERS = new Parser[]{
+        new OurocardParser(),
+        new ItaucardParser()
+    };
 
     /**
      * @param args the command line arguments
@@ -25,59 +43,22 @@ public class Main {
         File fileInput = new File(args[0]);
         File fileOutput = new File(fileInput.getPath() + "_");
 
-        boolean found = false;
+        Parser foundParser = null;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(args[0]))) {
-            Pattern key = Pattern.compile("OUROCARD");
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Matcher m = key.matcher(line);
-                if (m.find()) {
-                    found = true;
+        for (Parser parser : PARSERS) {
+            try (Reader reader = new FileReader(args[0])) {
+                if (parser.verifySignature(reader)) {
+                    foundParser = parser;
                     break;
                 }
             }
         }
 
-        if (found) {
-
-            Pattern[] patterns = new Pattern[]{
-                Pattern.compile("(\\d\\d/\\d\\d) +(.+?) +([\\d\\.,-]+) +([\\d\\.,-]+)"),
-                Pattern.compile("(.+?)\\t(.+?)\\s+PARC (\\d\\d/\\d\\d).+?\\t\\t(.+?)\\t(.+)"),
-                Pattern.compile("(.+?)\\t([^\\t]{22,}?)\\s+.+?\\t\\t(.+?)\\t(.+)"),
-                Pattern.compile("\\s+\\t")
-            };
-
-            String[] replaces = new String[]{
-                "$1\t$2\t\t$3\t$4",
-                "$1\t$2\t$4\t$3\t$5",
-                "$1\t$2\t$3\t\t$4",
-                "\t"
-            };
-
-            try (BufferedReader reader = new BufferedReader(new FileReader(fileInput));
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileOutput))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    found = false;
-
-                    for (int i = 0; i < patterns.length; i++) {
-                        Matcher m = patterns[i].matcher(line);
-                        if (m.matches()) {
-                            found = true;
-                            line = m.replaceAll(replaces[i]);
-                        }
-                    }
-
-                    if (found) {
-                        writer.append(line);
-                        writer.newLine();
-                    }
-
-                }
+        if (foundParser != null) {
+            try (Reader reader = new FileReader(fileInput);
+                    Writer writer = new FileWriter(fileOutput)) {
+                foundParser.parse(reader, writer);
             }
-
         }
     }
 
