@@ -56,16 +56,23 @@ public class BancoDoBrasilCheckingAccountStatementCsv implements Parser {
     }
 
     private String[] parseLine(String[] line) {
-        String date = fixDate(line[0]);
+        String date = line[0];
         String description = line[2];
-        String value = line[5];
+        String value = fixValue(line[5]);
 
         return new String[] {date, description, ACCOUNT_NAME, "", value};
     }
 
-    private String fixDate(String s) {
+    private String fixValue(String value) {
+        Pattern p = Pattern.compile("(-?\\d+)\\.(\\d\\d)");
+        Matcher m = p.matcher(value);
+
+        return m.replaceAll("$1,$2");
+    }
+
+    private String fixDate(String date) {
         Pattern p = Pattern.compile("(\\d\\d)/(\\d\\d)/(\\d\\d\\d\\d)");
-        Matcher m = p.matcher(s);
+        Matcher m = p.matcher(date);
 
         return m.replaceAll("$2/$1/$3");
     }
