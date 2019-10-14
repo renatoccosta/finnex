@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 /**
  *
@@ -56,7 +57,7 @@ public class Main {
 
         if (foundParser != null) {
             try (Reader reader = new FileReader(fileInput);
-                    Writer writer = new FileWriter(fileOutput)) {
+                    Writer writer = new FileWriter(fileOutput, StandardCharsets.UTF_8)) {
                 foundParser.parse(reader, writer);
             }
         }

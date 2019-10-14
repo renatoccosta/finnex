@@ -6,14 +6,31 @@
     <groupId>br.com.renatoccosta</groupId>
     <artifactId>finnex</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.11</maven.compiler.source>
-        <maven.compiler.target>1.11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
 
         <opencsv.version>4.6</opencsv.version>
+        <junit-jupiter-api.version>5.5.2</junit-jupiter-api.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -29,7 +46,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.5.2</version>
+            <version>${junit-jupiter-api.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
