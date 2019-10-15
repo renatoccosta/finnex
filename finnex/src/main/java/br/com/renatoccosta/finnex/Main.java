@@ -15,52 +15,62 @@
  */
 package br.com.renatoccosta.finnex;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Reader;
-import java.io.Writer;
+import org.mozilla.universalchardet.UniversalDetector;
+
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
- *
  * @author Renato Costa <renatoccosta@petrobras.com>
  */
 public class Main {
 
+    private final static Logger LOGGER = Logger.getLogger(Main.class.getName());
+
     private static final Parser[] PARSERS = new Parser[]{
-        new OurocardParser(),
-        new ItaucardParser()
+            new OurocardParser(),
+            new ItaucardParser()
     };
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length < 1) {
-            throw new IllegalArgumentException("Input filename as first argument");
+            throw new IllegalArgumentException("Input filenames as arguments");
         }
 
-        File fileInput = new File(args[0]);
-        File fileOutput = new File(fileInput.getPath() + "_");
-
-        Parser foundParser = null;
-
-        for (Parser parser : PARSERS) {
-            try (Reader reader = new FileReader(args[0])) {
-                if (parser.verifySignature(reader)) {
-                    foundParser = parser;
-                    break;
-                }
-            }
-        }
-
-        if (foundParser != null) {
-            try (Reader reader = new FileReader(fileInput);
-                    Writer writer = new FileWriter(fileOutput, StandardCharsets.UTF_8)) {
-                foundParser.parse(reader, writer);
-            }
-        }
+        Stream.of(args)
+                .map(File::new)
+                .forEach(fileInput -> {
+                    try {
+                        String charset = UniversalDetector.detectCharset(fileInput);
+                        Stream.of(PARSERS)
+                                .filter(p -> {
+                                    try (Reader reader = new FileReader(fileInput, Charset.forName(charset))) {
+                                        return p.verifySignature(reader);
+                                    } catch (IOException e) {
+                                        LOGGER.warning(e.getMessage());
+                                        return false;
+                                    }
+                                })
+                                .findFirst()
+                                .ifPresent(p -> {
+                                    File fileOutput = new File(fileInput.getPath() + "_");
+                                    try (Reader reader = new FileReader(fileInput, Charset.forName(charset));
+                                         Writer writer = new FileWriter(fileOutput, StandardCharsets.UTF_8)) {
+                                        p.parse(reader, writer);
+                                    } catch (IOException e) {
+                                        LOGGER.warning(e.getMessage());
+                                    }
+                                });
+                    } catch (IOException e) {
+                        LOGGER.warning(e.getMessage());
+                    }
+                });
     }
 
 }
