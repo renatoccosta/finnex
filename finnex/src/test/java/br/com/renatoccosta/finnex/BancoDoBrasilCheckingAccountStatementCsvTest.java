@@ -1,11 +1,11 @@
 package br.com.renatoccosta.finnex;
 
+import br.com.renatoccosta.finnex.parsers.BancoDoBrasilCheckingAccountStatementCsv;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;

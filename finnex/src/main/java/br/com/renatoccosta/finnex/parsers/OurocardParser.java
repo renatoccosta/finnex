@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package br.com.renatoccosta.finnex;
+package br.com.renatoccosta.finnex.parsers;
+
+import br.com.renatoccosta.finnex.RegexSingleLineParser;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
@@ -21,6 +24,7 @@ import java.util.regex.Pattern;
  *
  * @author Renato Costa <renatoccosta@petrobras.com>
  */
+@Component
 public class OurocardParser extends RegexSingleLineParser {
 
     private final Pattern signature = Pattern.compile("OUROCARD");

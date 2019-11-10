@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package br.com.renatoccosta.finnex;
+package br.com.renatoccosta.finnex.parsers;
+
+import br.com.renatoccosta.finnex.Parser;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -27,6 +30,7 @@ import java.util.regex.Pattern;
  *
  * @author Renato Costa <renatoccosta@petrobras.com>
  */
+@Component
 public class ItaucardParser implements Parser {
 
     private final Pattern signature = Pattern.compile("Itaucard");

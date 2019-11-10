@@ -1,7 +1,9 @@
-package br.com.renatoccosta.finnex;
+package br.com.renatoccosta.finnex.parsers;
 
+import br.com.renatoccosta.finnex.Parser;
 import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.CSVWriter;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+@Component
 public class BancoDoBrasilCheckingAccountStatementCsv implements Parser {
     private static final String HEADER =
             "\"Data\",\"Dependencia Origem\",\"Histórico\",\"Data do Balancete\",\"Número do documento\",\"Valor\",";

@@ -15,40 +15,60 @@
  */
 package br.com.renatoccosta.finnex;
 
+import br.com.renatoccosta.finnex.parsers.BancoDoBrasilCheckingAccountStatementCsv;
+import br.com.renatoccosta.finnex.parsers.ItaucardParser;
+import br.com.renatoccosta.finnex.parsers.OurocardParser;
 import org.mozilla.universalchardet.UniversalDetector;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
  * @author Renato Costa <renatoccosta@petrobras.com>
  */
-public class Main {
+@SpringBootApplication
+public class FinnexApplication {
 
-    private final static Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(FinnexApplication.class.getName());
 
-    private static final Parser[] PARSERS = new Parser[]{
-            new OurocardParser(),
-            new ItaucardParser()
-    };
+    private final List<Parser> parsers;
+
+    private final ApplicationArguments args;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
+        SpringApplication.run(FinnexApplication.class, args);
+    }
+
+    public FinnexApplication(List<Parser> parsers, ApplicationArguments args) {
+        this.parsers = parsers;
+        this.args = args;
+    }
+
+    @PostConstruct
+    private void init() {
+        String[] rawArgs = args.getSourceArgs();
+
+        if (rawArgs.length < 1) {
             throw new IllegalArgumentException("Input filenames as arguments");
         }
 
-        Stream.of(args)
+        Stream.of(rawArgs)
                 .map(File::new)
                 .forEach(fileInput -> {
                     try {
                         String charset = UniversalDetector.detectCharset(fileInput);
-                        Stream.of(PARSERS)
+                        parsers.stream()
                                 .filter(p -> {
                                     try (Reader reader = new FileReader(fileInput, Charset.forName(charset))) {
                                         return p.verifySignature(reader);
