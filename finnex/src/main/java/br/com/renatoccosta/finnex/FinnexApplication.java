@@ -15,21 +15,24 @@
  */
 package br.com.renatoccosta.finnex;
 
-import br.com.renatoccosta.finnex.parsers.BancoDoBrasilCheckingAccountStatementCsv;
-import br.com.renatoccosta.finnex.parsers.ItaucardParser;
-import br.com.renatoccosta.finnex.parsers.OurocardParser;
-import org.mozilla.universalchardet.UniversalDetector;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+
+import org.mozilla.universalchardet.UniversalDetector;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @author Renato Costa <renatoccosta@petrobras.com>

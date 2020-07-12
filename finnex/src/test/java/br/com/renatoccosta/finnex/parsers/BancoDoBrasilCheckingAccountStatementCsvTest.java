@@ -1,4 +1,4 @@
-package br.com.renatoccosta.finnex;
+package br.com.renatoccosta.finnex.parsers;
 
 import br.com.renatoccosta.finnex.parsers.BancoDoBrasilCheckingAccountStatementCsv;
 import org.junit.jupiter.api.Test;
