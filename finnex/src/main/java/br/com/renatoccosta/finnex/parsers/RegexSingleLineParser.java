@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Renato Costa <renatoccosta@petrobras.com>.
+ * Copyright 2016 Renato Costa <renatoccosta@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package br.com.renatoccosta.finnex.parsers;
 
-import br.com.renatoccosta.finnex.Parser;
-import org.springframework.stereotype.Component;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -26,26 +23,14 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- *
- * @author Renato Costa <renatoccosta@petrobras.com>
- */
-@Component
-public class ItaucardParser implements Parser {
-
-    private final Pattern signature = Pattern.compile("Itaucard");
-
-    private final Pattern parsePattern = Pattern.compile("(\\d\\d/\\d\\d) (.+?) ((- )?\\d+,\\d\\d)");
-
-    private final String replace = "$1\t$2\t$3";
-
+public abstract class RegexSingleLineParser implements Parser {
+    
     @Override
     public boolean verifySignature(Reader input) throws IOException {
         BufferedReader inputReader = new BufferedReader(input);
-        
         String line;
         while ((line = inputReader.readLine()) != null) {
-            Matcher m = signature.matcher(line);
+            Matcher m = getSignature().matcher(line);
             if (m.find()) {
                 return true;
             }
@@ -57,18 +42,28 @@ public class ItaucardParser implements Parser {
     public void parse(Reader input, Writer output) throws IOException {
         BufferedReader reader = new BufferedReader(input);
         BufferedWriter writer = new BufferedWriter(output);
-        
         String line;
         while ((line = reader.readLine()) != null) {
-            Matcher m = parsePattern.matcher(line);
-            while (m.find()) {
-                line = line.substring(m.start(), m.end());
-                line = parsePattern.matcher(line).replaceAll(replace);
+            boolean found = false;
+            for (int i = 0; i < getParsePatterns().length; i++) {
+                Matcher m = getParsePatterns()[i].matcher(line);
+                if (m.matches()) {
+                    found = true;
+                    line = m.replaceAll(getReplaceStrings()[i]);
+                }
+            }
+            if (found) {
                 writer.append(line);
                 writer.newLine();
             }
         }
         writer.flush();
     }
-
+    
+    protected abstract Pattern getSignature();
+    
+    protected abstract Pattern[] getParsePatterns();
+    
+    protected abstract String[] getReplaceStrings();
+    
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Renato Costa <renatoccosta@petrobras.com>.
+ * Copyright 2016 Renato Costa <renatoccosta@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author Renato Costa <renatoccosta@petrobras.com>
- */
+import br.com.renatoccosta.finnex.parsers.Parser;
+
 @SpringBootApplication
 public class FinnexApplication {
 

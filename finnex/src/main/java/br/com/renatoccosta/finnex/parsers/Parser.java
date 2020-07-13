@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Renato Costa <renatoccosta@petrobras.com>.
+ * Copyright 2016 Renato Costa <renatoccosta@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package br.com.renatoccosta.finnex;
+package br.com.renatoccosta.finnex.parsers;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
-/**
- *
- * @author Renato Costa <renatoccosta@petrobras.com>
- */
 public interface Parser {
     
     boolean verifySignature(Reader input) throws IOException;
