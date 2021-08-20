@@ -16,7 +16,7 @@ package br.com.renatoccosta.finnex.parsers;
 
 import org.junit.jupiter.api.Test;
 
-import br.com.renatoccosta.finnex.parsers.impl.BancoDoBrasilCheckingAccountStatementCsv;
+import br.com.renatoccosta.finnex.parsers.impl.BancoDoBrasilCheckingAccountStatementCsvParser;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -32,16 +32,16 @@ class BancoDoBrasilCheckingAccountStatementCsvTest {
 
     @Test
     void verifySignature() throws Exception {
-        BancoDoBrasilCheckingAccountStatementCsv parser = new BancoDoBrasilCheckingAccountStatementCsv();
+        BancoDoBrasilCheckingAccountStatementCsvParser parser = new BancoDoBrasilCheckingAccountStatementCsvParser();
         Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("/bb-cc.csv"),
                 "windows-1252");
 
-        assertTrue(parser.verifySignature(reader));
+        assertTrue(parser.canParse(reader));
     }
 
     @Test
     void parse() throws Exception {
-        BancoDoBrasilCheckingAccountStatementCsv parser = new BancoDoBrasilCheckingAccountStatementCsv();
+        BancoDoBrasilCheckingAccountStatementCsvParser parser = new BancoDoBrasilCheckingAccountStatementCsvParser();
 
         Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("/bb-cc.csv"),
                 "windows-1252");

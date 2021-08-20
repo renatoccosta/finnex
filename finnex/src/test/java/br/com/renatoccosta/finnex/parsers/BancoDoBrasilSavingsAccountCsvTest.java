@@ -26,22 +26,22 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 
-import br.com.renatoccosta.finnex.parsers.impl.BancoDoBrasilSavingsAccountCsv;
+import br.com.renatoccosta.finnex.parsers.impl.BancoDoBrasilSavingsAccountCsvParser;
 
 class BancoDoBrasilSavingsAccountCsvTest {
 
     @Test
     void verifySignature() throws Exception {
-        Parser parser = new BancoDoBrasilSavingsAccountCsv();
+        Parser parser = new BancoDoBrasilSavingsAccountCsvParser();
         Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("/bb-cp.csv"),
                 "windows-1252");
 
-        assertTrue(parser.verifySignature(reader));
+        assertTrue(parser.canParse(reader));
     }
 
     @Test
     void parse() throws Exception {
-        Parser parser = new BancoDoBrasilSavingsAccountCsv();
+        Parser parser = new BancoDoBrasilSavingsAccountCsvParser();
 
         Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("/bb-cp.csv"),
                 "windows-1252");

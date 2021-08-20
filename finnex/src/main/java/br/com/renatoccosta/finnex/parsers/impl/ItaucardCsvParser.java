@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package br.com.renatoccosta.finnex.parsers;
+package br.com.renatoccosta.finnex.parsers.impl;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,14 +23,29 @@ import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class RegexSingleLineParser implements Parser {
-    
+import org.springframework.stereotype.Component;
+
+import br.com.renatoccosta.finnex.domain.Statement;
+import br.com.renatoccosta.finnex.parsers.Parser;
+import io.reactivex.rxjava3.core.Observable;
+
+@Component
+public class ItaucardCsvParser implements Parser {
+
+    private final Pattern signature = Pattern.compile("Itaucard");
+
+    private final Pattern parsePattern = Pattern
+            .compile("(\\d\\d/\\d\\d) (.+?) ((- )?\\d+,\\d\\d)");
+
+    private final String replace = "$1\t$2\t$3";
+
     @Override
     public boolean canParse(Reader input) throws IOException {
         BufferedReader inputReader = new BufferedReader(input);
+
         String line;
         while ((line = inputReader.readLine()) != null) {
-            Matcher m = getSignature().matcher(line);
+            Matcher m = signature.matcher(line);
             if (m.find()) {
                 return true;
             }
@@ -42,28 +57,24 @@ public abstract class RegexSingleLineParser implements Parser {
     public void parse(Reader input, Writer output) throws IOException {
         BufferedReader reader = new BufferedReader(input);
         BufferedWriter writer = new BufferedWriter(output);
+
         String line;
         while ((line = reader.readLine()) != null) {
-            boolean found = false;
-            for (int i = 0; i < getParsePatterns().length; i++) {
-                Matcher m = getParsePatterns()[i].matcher(line);
-                if (m.matches()) {
-                    found = true;
-                    line = m.replaceAll(getReplaceStrings()[i]);
-                }
-            }
-            if (found) {
+            Matcher m = parsePattern.matcher(line);
+            while (m.find()) {
+                line = line.substring(m.start(), m.end());
+                line = parsePattern.matcher(line).replaceAll(replace);
                 writer.append(line);
                 writer.newLine();
             }
         }
         writer.flush();
     }
-    
-    protected abstract Pattern getSignature();
-    
-    protected abstract Pattern[] getParsePatterns();
-    
-    protected abstract String[] getReplaceStrings();
-    
+
+    @Override
+    public Observable<Statement> parse(Reader input) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

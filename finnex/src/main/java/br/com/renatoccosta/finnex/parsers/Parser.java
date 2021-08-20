@@ -19,10 +19,24 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
+import br.com.renatoccosta.finnex.domain.Statement;
+import io.reactivex.rxjava3.core.Observable;
+
+/**
+ * Generic parser interface that all parsers needs to implement.
+ */
 public interface Parser {
-    
-    boolean verifySignature(Reader input) throws IOException;
-    
+
+    /**
+     * Verifies if this parser can understand the document and parse its data
+     * 
+     * @param input Document stream
+     * @return Whether it can or not parse the data
+     * @throws IOException If any problems happens during read
+     */
+    boolean canParse(Reader input) throws IOException;
+
     void parse(Reader input, Writer output) throws IOException;
-    
+
+    Observable<Statement> parse(Reader input);
 }

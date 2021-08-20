@@ -34,6 +34,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import br.com.renatoccosta.finnex.parsers.FileParser;
 import br.com.renatoccosta.finnex.parsers.Parser;
 
 @SpringBootApplication
@@ -67,32 +68,52 @@ public class FinnexApplication {
 
         Stream.of(rawArgs)
                 .map(File::new)
-                .forEach(fileInput -> {
-                    try {
-                        String charset = UniversalDetector.detectCharset(fileInput);
-                        parsers.stream()
-                                .filter(p -> {
-                                    try (Reader reader = new FileReader(fileInput, Charset.forName(charset))) {
-                                        return p.verifySignature(reader);
-                                    } catch (IOException e) {
-                                        LOGGER.warning(e.getMessage());
-                                        return false;
-                                    }
-                                })
-                                .findFirst()
-                                .ifPresent(p -> {
-                                    File fileOutput = new File(fileInput.getPath() + "_");
-                                    try (Reader reader = new FileReader(fileInput, Charset.forName(charset));
-                                         Writer writer = new FileWriter(fileOutput, StandardCharsets.UTF_8)) {
-                                        p.parse(reader, writer);
-                                    } catch (IOException e) {
-                                        LOGGER.warning(e.getMessage());
-                                    }
-                                });
-                    } catch (IOException e) {
-                        LOGGER.warning(e.getMessage());
-                    }
-                });
+                .filter(File::exists)
+                .flatMap(this::createFileParsers)
+                .forEach(FileParser::export);
+    }
+
+    private Stream<FileParser> createFileParsers(File file) {
+        String detectedCharset = null;
+        try {
+            detectedCharset = UniversalDetector.detectCharset(file);
+        } catch (IOException e) {
+            LOGGER.warning(e.getMessage());
+        }
+
+        final Charset charset = detectedCharset != null
+                ? Charset.forName(detectedCharset)
+                : Charset.defaultCharset();
+
+        return parsers.stream()
+                .filter(parser -> {
+                    return verifySignature(file, charset, parser);
+                })
+                .map(parser -> FileParser.builder()
+                        .parser(parser)
+                        .file(file)
+                        .charset(charset)
+                        .build());
+    }
+
+    private boolean verifySignature(File fileInput, Charset charset, Parser p) {
+        try (Reader reader = new FileReader(fileInput, charset)) {
+            return p.canParse(reader);
+        } catch (IOException e) {
+            LOGGER.warning(e.getMessage());
+            return false;
+        }
+    }
+
+    private void parseFile(File fileInput, String charset, Parser p) {
+        File fileOutput = new File(fileInput.getPath() + "_");
+        try (Reader reader = new FileReader(fileInput, Charset.forName(charset));
+                Writer writer = new FileWriter(fileOutput,
+                        StandardCharsets.UTF_8)) {
+            p.parse(reader, writer);
+        } catch (IOException e) {
+            LOGGER.warning(e.getMessage());
+        }
     }
 
 }

@@ -21,10 +21,10 @@ import java.io.Reader;
 import java.io.Writer;
 
 @Component
-public class SimpleOFXParser implements Parser {
+public abstract class SimpleOFXParser implements Parser {
 
     @Override
-    public boolean verifySignature(Reader input) throws IOException {
+    public boolean canParse(Reader input) throws IOException {
         return false;
     }
 
